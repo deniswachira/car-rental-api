@@ -73,6 +73,7 @@ export const paymentTable = pgTable( "paymentTable",{
     payment_amount: decimal("payment_amount"),
     payment_status: paymentStatusEnum('payment_status').default('pending'),
     payment_mode: varchar("payment_mode"),
+    session_id: varchar("session_id"),
     payment_date: timestamp("payment_date").defaultNow(),
     updated_at: timestamp("updated_at").defaultNow(),
 });

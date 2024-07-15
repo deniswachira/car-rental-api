@@ -24,6 +24,11 @@ export const updatePaymentService = async(payment_id:number,payment:TPaymentInse
     await db.update(paymentTable).set(payment).where(eq(paymentTable.payment_id,payment_id));
     return "Payment updated successfully 🎉"
 }
+//update payment using session id
+export const updatePaymentBySessionIdService = async (session_id: string) => {
+    await db.update(paymentTable).set({payment_status: "paid"}).where(eq(paymentTable.session_id,session_id));
+    return "Payment updated successfully 🎉"
+}
 
 export const deletePaymentService = async(payment_id:number) => {
     await db.delete(paymentTable).where(eq(paymentTable.payment_id,payment_id));

@@ -1,10 +1,9 @@
 import { Context } from "hono";
-import dotenv from 'dotenv';
+
 import { deleteBookingService, getAllBokingsWithUserAndVehicleService, getBookingByIdService, getBookingsByUserIdService, getBookingsService, insertBookingService, updateBookingService } from "./booking.service";
-import Stripe from 'stripe';
+
 import { insertPaymentService } from "../payment/payment.service";
-dotenv.config();
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, { apiVersion: '2024-06-20' });
+
 
 //list of vehicles
 export const listAllBookings = async (c: Context) => {
@@ -101,44 +100,4 @@ export const getAllBokingsWithUserAndVehicle = async (c: Context) => {
     }
 }
 
-//checkout booking
-export const checkoutBooking = async (c: Context) => {
-    let booking;
-    try {
-        booking = await c.req.json();
-    } catch (error) {
-        return c.text("Invalid request body", 400);
-    }
-    try {
-        if (!booking.booking_id || !booking.total_amount) {
-            return c.text("Missing booking ID or total amount", 400);
-        }
-       
-        const conversionRate = 0.007; 
-        const totalAmountInUsd = booking.total_amount * conversionRate;
-        const line_items: Stripe.Checkout.SessionCreateParams.LineItem[] = [{
-            price_data: {
-                currency: 'usd',
-                product_data: {
-                    name: `Booking ID: ${booking.booking_id}`,
-                },
-                unit_amount: Math.round(totalAmountInUsd * 100), // Convert to cents
-            },
-            quantity: 1,
-        }];
-        const sessionParams: Stripe.Checkout.SessionCreateParams = {
-            payment_method_types: ['card'],
-            line_items,
-            mode: 'payment',
-            success_url: 'http://localhost:5173/success',
-            cancel_url: 'http://localhost:5173/failed',
-        };
-        const session: Stripe.Checkout.Session = await stripe.checkout.sessions.create(sessionParams);
-
-        return c.json({ id: session.id });   
-
-    } catch (error: any) {
-        return c.text(error?.message, 400);
-    }
-};
 

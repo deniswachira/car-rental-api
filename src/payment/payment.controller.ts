@@ -1,6 +1,10 @@
 import { Context } from "hono";
-import { deletePaymentService, getPaymentByIdService, getPaymentsByUserIdService, getPaymentService, insertPaymentService, updatePaymentService } from "./payment.service";
-
+import dotenv from 'dotenv';
+import { deletePaymentService, getPaymentByIdService, getPaymentsByUserIdService, getPaymentService, insertPaymentService, updatePaymentBySessionIdService, updatePaymentService } from "./payment.service";
+import Stripe from 'stripe';
+import { paymentTable } from "../drizzle/schema";
+dotenv.config();
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, { apiVersion: '2024-06-20' });
 //list of payments
 export const listAllPayments = async (c: Context) => {
     try {
@@ -86,3 +90,84 @@ export const getPaymentsByUserId = async (c: Context) => {
     }
 }
 
+export const checkoutBooking = async (c: Context) => {
+    let payment;
+    try {
+        payment = await c.req.json();
+    } catch (error) {
+        return c.text("Invalid request body", 400);
+    }
+    try {
+        if (!payment.payment_id || !payment.payment_amount) {
+            return c.text("Missing Payment ID or total amount", 400);
+        }
+
+        const conversionRate = 0.007;
+        const totalAmountInUsd = payment.payment_amount * conversionRate;
+        const line_items: Stripe.Checkout.SessionCreateParams.LineItem[] = [{
+            price_data: {
+                currency: 'usd',
+                product_data: {
+                    name: `Payment ID: ${payment.payment_id}`,
+                },
+                unit_amount: Math.round(totalAmountInUsd * 100), // Convert to cents
+            },
+            quantity: 1,
+        }];
+        const sessionParams: Stripe.Checkout.SessionCreateParams = {
+            payment_method_types: ['card'],
+            line_items,
+            mode: 'payment',
+            success_url: 'http://localhost:5173/success',
+            cancel_url: 'http://localhost:5173/failed',
+        };
+        const session: Stripe.Checkout.Session = await stripe.checkout.sessions.create(sessionParams);
+        // Save payment details to the database
+        const paymentDetails = {
+            booking_id: payment.booking_id,
+            user_id: payment.user_id,
+            payment_amount: payment.payment_amount,
+            payment_mode: 'card',
+            session_id: session.id,
+        };
+        const createPayment = await insertPaymentService(paymentDetails);
+
+        return c.json({ id: session.id , payment: createPayment }, 200);
+
+    } catch (error: any) {
+        return c.text(error?.message, 400);
+    }
+};
+
+export const handleStripeWebhook = async (c: Context) => {
+    const sig = c.req.header['stripe-signature' as keyof typeof c.req.header] as string;
+    const rawBody = await c.req.text();
+
+    let event: Stripe.Event;
+    try {
+        event = stripe.webhooks.constructEvent(rawBody, sig!, process.env.STRIPE_SECRET_KEY as string);
+    } catch (err:any) {
+        return c.text(`Webhook Error: ${err.message}`, 400);
+    }
+
+    // Handle the event
+    switch (event.type) {
+        case 'checkout.session.completed':
+            const session = event.data.object as Stripe.Checkout.Session;
+
+            // Update payment status in the database
+            try {
+                const session_id = session.id;                
+                const updateStatus = await updatePaymentBySessionIdService(session_id);
+                return c.json({ message: 'Payment status updated successfully', payment: updateStatus }, 200);
+            } catch (err: any) {
+                return c.text(`Database Error: ${err.message}`, 500);
+            }
+
+        // Handle other event types as needed
+        default:
+            return c.text(`Unhandled event type ${event.type}`, 400);
+    }
+};
+
+export default handleStripeWebhook;

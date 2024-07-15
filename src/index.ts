@@ -1,5 +1,5 @@
 import { serve } from '@hono/node-server'
-import { Context, Hono } from 'hono'
+import { Context, Hono, HonoRequest } from 'hono'
 import { prometheus } from '@hono/prometheus'
 import { limiter } from './middleWare/rateLimiter';
 import { readFile } from 'fs/promises';
@@ -24,6 +24,7 @@ import bodyParser from 'body-parser';
 import db from './drizzle/db';
 import { paymentTable } from './drizzle/schema';
 import { Placeholder, SQL } from 'drizzle-orm';
+import handleStripeWebhook from './payment/payment.controller';
 dotenv.config();
 
 const app = new Hono();
@@ -38,41 +39,8 @@ app.use('*', registerMetrics) //prometheus to monitor metrics
 app.use(cors()) 
 app.use(limiter); //rate limiter
 
-// Middleware to parse raw body for webhook verification
-// app.use('/webhook', bodyParser.raw({ type: 'application/json', limit: '1mb' }));
-
-// app.post('/webhook', async (c: Context) => {
-//   const sig = c.req.header('stripe-signature');
-//   let event;
-
-//   try {
-//     event = stripe.webhooks.constructEvent(await c.req.json(), sig || '', 'your_stripe_webhook_secret');
-//   } catch (err) {
-//     console.error(`⚠️  Webhook signature verification failed.`, (err as Error).message);
-//     return c.text(`Webhook Error: ${err}`, 400);
-//   }
-
-//   if (event.type === 'checkout.session.completed') {
-//     const session = event.data.object;
-
-//     // Create a payment record in your database
-//     await createPaymentRecord(session);
-//   }
-
-//   return c.json({ received: true });
-// });
-
-// async function createPaymentRecord(session: stripeLib.Checkout.Session) {
-//   const payment = {
-//     booking_id: Number(session.metadata?.booking_id),
-//     amount: session.amount_total,
-//     payment_status: session.payment_status as "paid" | SQL<unknown> | "pending" | "failed" | Placeholder<string, any> | null | undefined,
-//     payment_mode: session.payment_method_types[0]
-//   };
-
-//   await db.insert(paymentTable).values(payment)
-//   return "Payment inserted successfully 🎉";
-// }
+//webhooks
+app.post('/webhook', handleStripeWebhook)
 
 //default routes
 app.get('/', async (c) => {

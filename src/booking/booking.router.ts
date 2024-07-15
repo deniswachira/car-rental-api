@@ -1,5 +1,5 @@
 import { Hono } from "hono"
-import { checkoutBooking, deleteBooking, getAllBokingsWithUserAndVehicle, getBookingById, getBookingsByUserId, insertBooking, listAllBookings, updateBooking } from "./booking.controller";
+import {  deleteBooking, getAllBokingsWithUserAndVehicle, getBookingById, getBookingsByUserId, insertBooking, listAllBookings, updateBooking } from "./booking.controller";
 import { createBookingValidator, updateBookingValidator } from "../validators/booking.validator";
 import { zValidator } from "@hono/zod-validator";
 
@@ -31,5 +31,5 @@ bookingRouter.get("/users/:user_id/bookings", getBookingsByUserId)
 //get bookings with user details
 bookingRouter.get("/bookings-user-with-userdetails", getAllBokingsWithUserAndVehicle)
 
-//checkout booking
-bookingRouter.post("/create-checkout-session/:booking_id", checkoutBooking)
+// //checkout booking
+// bookingRouter.post("/create-checkout-session/:booking_id", checkoutBooking)
