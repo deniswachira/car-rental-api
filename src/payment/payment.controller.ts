@@ -22,7 +22,7 @@ export const getPaymentById = async (c: Context) => {
     try {
         if (isNaN(payment_id)) return c.text("Invalid ID", 400);
         //search for payment    
-        const payment = await getPaymentByIdService(payment_id);   
+        const payment = await getPaymentByIdService(payment_id);
         if (payment === undefined) return c.text("Payment not found", 404);
         return c.json(payment, 200);
     } catch (error: any) {
@@ -36,7 +36,7 @@ export const insertPayment = async (c: Context) => {
         const payment = await c.req.json();
         const createdPayment = await insertPaymentService(payment);
         if (createdPayment === undefined) return c.text("Payment not created 😒 ", 400);
-            return c.json(createdPayment, 201);        
+        return c.json(createdPayment, 201);
     } catch (error: any) {
         return c.text(error?.message, 400);
     }
@@ -82,7 +82,7 @@ export const getPaymentsByUserId = async (c: Context) => {
     try {
         if (isNaN(user_id)) return c.text("Invalid ID", 400);
         //search for payment    
-        const payment = await getPaymentsByUserIdService(user_id);   
+        const payment = await getPaymentsByUserIdService(user_id);
         if (payment === null) return c.text("No payment found", 404);
         return c.json(payment, 200);
     } catch (error: any) {
@@ -118,8 +118,8 @@ export const checkoutBooking = async (c: Context) => {
             payment_method_types: ['card'],
             line_items,
             mode: 'payment',
-            success_url: 'http://localhost:5173/success',
-            cancel_url: 'http://localhost:5173/failed',
+            success_url: 'https://zealous-hill-0e4ae010f.5.azurestaticapps.net/success',
+            cancel_url: 'https://zealous-hill-0e4ae010f.5.azurestaticapps.net/failed',
         };
         const session: Stripe.Checkout.Session = await stripe.checkout.sessions.create(sessionParams);
         // Save payment details to the database
@@ -132,7 +132,7 @@ export const checkoutBooking = async (c: Context) => {
         };
         const createPayment = await insertPaymentService(paymentDetails);
 
-        return c.json({ id: session.id , payment: createPayment }, 200);
+        return c.json({ id: session.id, payment: createPayment }, 200);
 
     } catch (error: any) {
         return c.text(error?.message, 400);
@@ -142,11 +142,14 @@ export const checkoutBooking = async (c: Context) => {
 export const handleStripeWebhook = async (c: Context) => {
     const sig = c.req.header['stripe-signature' as keyof typeof c.req.header] as string;
     const rawBody = await c.req.text();
-
+    if (!sig) {
+        console.error('Webhook Error: No stripe-signature header value was provided.');
+        return c.text('Webhook Error: No stripe-signature header value was provided.', 400);
+    }
     let event: Stripe.Event;
     try {
         event = stripe.webhooks.constructEvent(rawBody, sig!, process.env.STRIPE_WEBHOOK_SECRET as string);
-    } catch (err:any) {
+    } catch (err: any) {
         return c.text(`Webhook Error: ${err.message}`, 400);
     }
 
@@ -154,10 +157,9 @@ export const handleStripeWebhook = async (c: Context) => {
     switch (event.type) {
         case 'checkout.session.completed':
             const session = event.data.object as Stripe.Checkout.Session;
-
             // Update payment status in the database
             try {
-                const session_id = session.id;                
+                const session_id = session.id;
                 const updateStatus = await updatePaymentBySessionIdService(session_id);
                 return c.json({ message: 'Payment status updated successfully', payment: updateStatus }, 200);
             } catch (err: any) {
