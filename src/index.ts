@@ -62,17 +62,17 @@ app.use(limiter); //rate limiter
 //   return c.json({ received: true });
 // });
 
-async function createPaymentRecord(session: stripeLib.Checkout.Session) {
-  const payment = {
-    booking_id: Number(session.metadata?.booking_id),
-    amount: session.amount_total,
-    payment_status: session.payment_status as "paid" | SQL<unknown> | "pending" | "failed" | Placeholder<string, any> | null | undefined,
-    payment_mode: session.payment_method_types[0]
-  };
+// async function createPaymentRecord(session: stripeLib.Checkout.Session) {
+//   const payment = {
+//     booking_id: Number(session.metadata?.booking_id),
+//     amount: session.amount_total,
+//     payment_status: session.payment_status as "paid" | SQL<unknown> | "pending" | "failed" | Placeholder<string, any> | null | undefined,
+//     payment_mode: session.payment_method_types[0]
+//   };
 
-  await db.insert(paymentTable).values(payment)
-  return "Payment inserted successfully 🎉";
-}
+//   await db.insert(paymentTable).values(payment)
+//   return "Payment inserted successfully 🎉";
+// }
 
 //default routes
 app.get('/', async (c) => {
