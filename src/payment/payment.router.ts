@@ -1,5 +1,5 @@
 import {Hono} from "hono"
-import { deletePayment, getPaymentById, insertPayment, listAllPayments, updatePayment } from "./payment.controller";
+import { deletePayment, getPaymentById, getPaymentsByUserId, insertPayment, listAllPayments, updatePayment } from "./payment.controller";
 
 export const paymentRouter = new Hono();
 
@@ -17,3 +17,6 @@ paymentRouter.put('/payments/:payment_id', updatePayment)
 
 //delete state
 paymentRouter.delete("/payments/:payment_id", deletePayment)
+
+//get all payment for one user
+paymentRouter.get('/payments-with-user-id/:user_id', getPaymentsByUserId)

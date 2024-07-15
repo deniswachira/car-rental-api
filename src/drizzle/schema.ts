@@ -69,6 +69,7 @@ export const paymentStatusEnum = pgEnum("payment_status",['pending', 'paid','fai
 export const paymentTable = pgTable( "paymentTable",{
     payment_id: serial("payment_id").primaryKey(),
     booking_id: integer("booking_id").notNull().references(()=>bookingTable.booking_id,{onDelete:"cascade"}),
+    user_id: integer("user_id").notNull().references(()=>userTable.user_id,{onDelete:"cascade"}),
     payment_amount: decimal("payment_amount"),
     payment_status: paymentStatusEnum('payment_status').default('pending'),
     payment_mode: varchar("payment_mode"),
@@ -172,6 +173,14 @@ export const vehiclesSpec_vehicle_relation = relations(vehicleSpecificationTable
 //relation vehicleSpecification(1) --> (n)vehicle
 export const vehicleSpec_vehicle_relation = relations(vehicleSpecificationTable,({many})=>({
         vehicles: many(vehicleTable)
+}))
+
+//relation payment(1) --> (1)booking
+export const payment_booking_relation = relations(paymentTable,({one})=>({
+        booking: one(bookingTable,{
+                fields:[paymentTable.booking_id],
+                references:[bookingTable.booking_id]
+        })
 }))
 
 //infer types

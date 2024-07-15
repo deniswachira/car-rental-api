@@ -1,5 +1,5 @@
 import { Context } from "hono";
-import { deletePaymentService, getPaymentByIdService, getPaymentService, insertPaymentService, updatePaymentService } from "./payment.service";
+import { deletePaymentService, getPaymentByIdService, getPaymentsByUserIdService, getPaymentService, insertPaymentService, updatePaymentService } from "./payment.service";
 
 //list of payments
 export const listAllPayments = async (c: Context) => {
@@ -56,7 +56,7 @@ export const updatePayment = async (c: Context) => {
     }
 }
 
-//delete vehicle
+//delete payment
 export const deletePayment = async (c: Context) => {
     const payment_id = parseInt(c.req.param("payment_id"));
     try {
@@ -67,6 +67,20 @@ export const deletePayment = async (c: Context) => {
         //delete Payment
         const deletedPayment = await deletePaymentService(payment_id);
         return c.json({ msg: deletedPayment }, 200);
+    } catch (error: any) {
+        return c.text(error?.message, 400);
+    }
+}
+
+//get all payment for one user
+export const getPaymentsByUserId = async (c: Context) => {
+    const user_id = parseInt(c.req.param("user_id"));
+    try {
+        if (isNaN(user_id)) return c.text("Invalid ID", 400);
+        //search for payment    
+        const payment = await getPaymentsByUserIdService(user_id);   
+        if (payment === null) return c.text("No payment found", 404);
+        return c.json(payment, 200);
     } catch (error: any) {
         return c.text(error?.message, 400);
     }
