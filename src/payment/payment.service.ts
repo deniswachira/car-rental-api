@@ -68,3 +68,10 @@ export const getPaymentsByUserIdService = async (user_id: number): Promise<TPaym
         }
     });
 }
+
+//get payment using booking id
+export const getPaymentByBookingIdService = async (booking_id: number)=> {
+    return await db.query.paymentTable.findFirst({
+        where: eq(paymentTable.booking_id, booking_id)
+    })
+}

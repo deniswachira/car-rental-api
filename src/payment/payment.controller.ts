@@ -1,8 +1,7 @@
 import { Context } from "hono";
 import dotenv from 'dotenv';
-import { deletePaymentService, getPaymentByIdService, getPaymentsByUserIdService, getPaymentService, insertPaymentService, updatePaymentBySessionIdService, updatePaymentService } from "./payment.service";
+import { deletePaymentService, getPaymentByBookingIdService, getPaymentByIdService, getPaymentsByUserIdService, getPaymentService, insertPaymentService, updatePaymentBySessionIdService, updatePaymentService } from "./payment.service";
 import Stripe from 'stripe';
-import { paymentTable } from "../drizzle/schema";
 import { FRONTEND_URL } from "../proxxy/proxxy";
 dotenv.config();
 
@@ -73,6 +72,20 @@ export const deletePayment = async (c: Context) => {
         //delete Payment
         const deletedPayment = await deletePaymentService(payment_id);
         return c.json({ msg: deletedPayment }, 200);
+    } catch (error: any) {
+        return c.text(error?.message, 400);
+    }
+}
+
+//get payment using booking id
+export const getPaymentByBookingId = async (c: Context) => {
+    const booking_id = parseInt(c.req.param("booking_id"));
+    try {
+        if (isNaN(booking_id)) return c.text("Invalid ID", 400);
+        //search for payment    
+        const payment = await getPaymentByBookingIdService(booking_id);
+        if (payment === undefined) return c.text("Payment not found", 404);
+        return c.json(payment, 200);
     } catch (error: any) {
         return c.text(error?.message, 400);
     }
