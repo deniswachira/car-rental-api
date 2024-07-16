@@ -59,6 +59,7 @@ export const bookingTable = pgTable( "bookingTable",{
     total_amount: decimal("total_amount"),
     booking_status: statusEnum('booking_status').default('pending'),
     location: varchar("location"),
+    checkout_status: varchar('checkout_status').default('pending'),
     created_at: timestamp("created_at").defaultNow(),
     updated_at: timestamp("updated_at").defaultNow(),
 });

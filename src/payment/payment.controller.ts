@@ -93,24 +93,24 @@ export const getPaymentsByUserId = async (c: Context) => {
 }
 
 export const checkoutBooking = async (c: Context) => {
-    let payment;
+    let booking;
     try {
-        payment = await c.req.json();
+        booking = await c.req.json();
     } catch (error) {
         return c.text("Invalid request body", 400);
     }
     try {
-        if (!payment.payment_id || !payment.payment_amount) {
-            return c.text("Missing Payment ID or total amount", 400);
+        if (!booking.booking_id || !booking.total_amount) {
+            return c.text("Missing Booking ID or total amount", 400);
         }
 
         const conversionRate = 0.007;
-        const totalAmountInUsd = payment.payment_amount * conversionRate;
+        const totalAmountInUsd = booking.total_amount * conversionRate;
         const line_items: Stripe.Checkout.SessionCreateParams.LineItem[] = [{
             price_data: {
                 currency: 'usd',
                 product_data: {
-                    name: `Payment ID: ${payment.payment_id}`,
+                    name: `Booking ID: ${booking.booking_id}`,
                 },
                 unit_amount: Math.round(totalAmountInUsd * 100), // Convert to cents
             },
@@ -126,9 +126,9 @@ export const checkoutBooking = async (c: Context) => {
         const session: Stripe.Checkout.Session = await stripe.checkout.sessions.create(sessionParams);
         // Save payment details to the database
         const paymentDetails = {
-            booking_id: payment.booking_id,
-            user_id: payment.user_id,
-            payment_amount: payment.payment_amount,
+            booking_id: booking.booking_id,
+            user_id: booking.user_id,
+            payment_amount: booking.total_amount,
             payment_mode: 'card',
             session_id: session.id,
         };

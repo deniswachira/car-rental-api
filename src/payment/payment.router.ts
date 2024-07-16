@@ -22,5 +22,5 @@ paymentRouter.delete("/payments/:payment_id", deletePayment)
 paymentRouter.get('/payments-with-user-id/:user_id', getPaymentsByUserId)
 
 //checkout payment
-paymentRouter.post("/create-checkout-session/:payment_id", checkoutBooking)
+paymentRouter.post("/create-checkout-session/:booking_id", checkoutBooking)
 
