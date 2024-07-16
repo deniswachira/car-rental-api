@@ -3,6 +3,7 @@ import dotenv from 'dotenv';
 import { deletePaymentService, getPaymentByIdService, getPaymentsByUserIdService, getPaymentService, insertPaymentService, updatePaymentBySessionIdService, updatePaymentService } from "./payment.service";
 import Stripe from 'stripe';
 import { paymentTable } from "../drizzle/schema";
+import { FRONTEND_URL } from "../proxxy/proxxy";
 dotenv.config();
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, { apiVersion: '2024-06-20' });
@@ -119,8 +120,8 @@ export const checkoutBooking = async (c: Context) => {
             payment_method_types: ['card'],
             line_items,
             mode: 'payment',
-            success_url: `${process.env.FRONTEND_URL}/success`,
-            cancel_url: `${process.env.FRONTEND_URL}/failed`,
+            success_url: `${FRONTEND_URL}/success`,
+            cancel_url: `${FRONTEND_URL}/failed`,
         };
         const session: Stripe.Checkout.Session = await stripe.checkout.sessions.create(sessionParams);
         // Save payment details to the database
@@ -162,7 +163,7 @@ export const handleStripeWebhook = async (c: Context) => {
             try {
                 const session_id = session.id;
                 const updateStatus = await updatePaymentBySessionIdService(session_id);
-                return c.json({ message: 'Payment status updated successfully', payment: updateStatus }, 200);
+                return c.json({ payment: updateStatus }, 200);
             } catch (err: any) {
                 return c.text(`Database Error: ${err.message}`, 500);
             }
