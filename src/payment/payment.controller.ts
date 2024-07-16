@@ -4,6 +4,7 @@ import { deletePaymentService, getPaymentByIdService, getPaymentsByUserIdService
 import Stripe from 'stripe';
 import { paymentTable } from "../drizzle/schema";
 dotenv.config();
+
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, { apiVersion: '2024-06-20' });
 //list of payments
 export const listAllPayments = async (c: Context) => {
@@ -118,8 +119,8 @@ export const checkoutBooking = async (c: Context) => {
             payment_method_types: ['card'],
             line_items,
             mode: 'payment',
-            success_url: 'https://zealous-hill-0e4ae010f.5.azurestaticapps.net/success',
-            cancel_url: 'https://zealous-hill-0e4ae010f.5.azurestaticapps.net/failed',
+            success_url: `${process.env.FRONTEND_URL}/success`,
+            cancel_url: `${process.env.FRONTEND_URL}/failed`,
         };
         const session: Stripe.Checkout.Session = await stripe.checkout.sessions.create(sessionParams);
         // Save payment details to the database
@@ -140,7 +141,7 @@ export const checkoutBooking = async (c: Context) => {
 };
 
 export const handleStripeWebhook = async (c: Context) => {
-    const sig = c.req.header['stripe-signature' as keyof typeof c.req.header] as string;
+    const sig = c.req.header('stripe-signature');
     const rawBody = await c.req.text();
     if (!sig) {
         console.error('Webhook Error: No stripe-signature header value was provided.');
@@ -148,7 +149,7 @@ export const handleStripeWebhook = async (c: Context) => {
     }
     let event: Stripe.Event;
     try {
-        event = stripe.webhooks.constructEvent(rawBody, sig!, process.env.STRIPE_WEBHOOK_SECRET as string);
+        event = stripe.webhooks.constructEvent(rawBody, sig, process.env.STRIPE_WEBHOOK_SECRET as string);
     } catch (err: any) {
         return c.text(`Webhook Error: ${err.message}`, 400);
     }
