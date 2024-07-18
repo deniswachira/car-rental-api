@@ -31,5 +31,3 @@ bookingRouter.get("/users/:user_id/bookings", getBookingsByUserId)
 //get bookings with user details
 bookingRouter.get("/bookings-user-with-userdetails", getAllBokingsWithUserAndVehicle)
 
-// //checkout booking
-// bookingRouter.post("/create-checkout-session/:booking_id", checkoutBooking)

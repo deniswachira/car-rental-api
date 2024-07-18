@@ -75,3 +75,43 @@ export const getPaymentByBookingIdService = async (booking_id: number)=> {
         where: eq(paymentTable.booking_id, booking_id)
     })
 }
+
+//get all payment
+export const listAllPaymentsService = async () => {
+    return await db.query.paymentTable.findMany({
+        with: {
+            booking: {
+                columns: {
+                    booking_id: true,
+                    booking_date: true,
+                    returning_date: true,
+                    booking_status: true,
+                    vehicle_id: true
+                },
+                with: {
+                    vehicle: {
+                        columns: {
+                            vehicle_id: true,
+                            vehicleSpec_id: true
+                        },
+                        with: {
+                            vehicleSpec: {
+                                columns: {
+                                    vehicle_name: true,
+                                    vehicle_model: true,
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            user: {
+                columns: {
+                    user_id: true,
+                    full_name: true,
+                    email: true
+                }
+            }
+        }
+    });
+}

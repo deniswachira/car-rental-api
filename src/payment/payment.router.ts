@@ -1,5 +1,5 @@
 import {Hono} from "hono"
-import { checkoutBooking, deletePayment, getPaymentByBookingId, getPaymentById, getPaymentsByUserId, insertPayment, listAllPayments, updatePayment } from "./payment.controller";
+import { checkoutBooking, deletePayment, getAllPayments, getPaymentByBookingId, getPaymentById, getPaymentsByUserId, insertPayment, listAllPayments, updatePayment } from "./payment.controller";
 
 export const paymentRouter = new Hono();
 
@@ -26,4 +26,7 @@ paymentRouter.get('/payment-by-booking-id/:booking_id', getPaymentByBookingId)
 
 //checkout payment
 paymentRouter.post("/create-checkout-session/:booking_id", checkoutBooking)
+
+//get all payments
+paymentRouter.get('/all-payments', getAllPayments)
 

@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import db from "../drizzle/db";
 import { TBookingInsert,TBookingSelect,bookingTable } from "../drizzle/schema";
 
@@ -51,3 +51,4 @@ export const getAllBokingsWithUserAndVehicleService = async ():Promise<TBookingS
         }
     });    
 }
+

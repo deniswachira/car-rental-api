@@ -182,7 +182,12 @@ export const payment_booking_relation = relations(paymentTable,({one})=>({
         booking: one(bookingTable,{
                 fields:[paymentTable.booking_id],
                 references:[bookingTable.booking_id]
+        }),
+        user: one(userTable,{
+                fields:[paymentTable.user_id],
+                references:[userTable.user_id]
         })
+
 }))
 
 //infer types

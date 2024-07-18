@@ -1,6 +1,6 @@
 import { Context } from "hono";
 import dotenv from 'dotenv';
-import { deletePaymentService, getPaymentByBookingIdService, getPaymentByIdService, getPaymentsByUserIdService, getPaymentService, insertPaymentService, updatePaymentBySessionIdService, updatePaymentService } from "./payment.service";
+import { deletePaymentService, getPaymentByBookingIdService, getPaymentByIdService, getPaymentsByUserIdService, getPaymentService, insertPaymentService, listAllPaymentsService, updatePaymentBySessionIdService, updatePaymentService } from "./payment.service";
 import Stripe from 'stripe';
 import { FRONTEND_URL } from "../proxxy/proxxy";
 dotenv.config();
@@ -85,6 +85,17 @@ export const getPaymentByBookingId = async (c: Context) => {
         //search for payment    
         const payment = await getPaymentByBookingIdService(booking_id);
         if (payment === undefined) return c.text("Payment not found", 404);
+        return c.json(payment, 200);
+    } catch (error: any) {
+        return c.text(error?.message, 400);
+    }
+}
+
+//get all payments
+export const getAllPayments = async (c: Context) => {
+    try {
+        const payment = await listAllPaymentsService();
+        if (payment === null) return c.json({msg:"No payment found"}, 404);
         return c.json(payment, 200);
     } catch (error: any) {
         return c.text(error?.message, 400);
