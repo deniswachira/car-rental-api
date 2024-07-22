@@ -18,20 +18,13 @@ import { branchRouter } from './location/location.router';
 import { paymentRouter } from './payment/payment.router';
 import { vehicleRouter } from './vehicle/vehicle.router';
 import { vehicleSpecsRouter } from './vehicleSpec/vehicleSpecs.router';
-import stripeLib from 'stripe';
 import dotenv from 'dotenv';
-import bodyParser from 'body-parser';
-import db from './drizzle/db';
-import { paymentTable } from './drizzle/schema';
-import { Placeholder, SQL } from 'drizzle-orm';
 import handleStripeWebhook from './payment/payment.controller';
 dotenv.config();
 
 const app = new Hono();
 const {printMetrics, registerMetrics} = prometheus();
-// const stripe = new stripeLib(process.env.STRIPE_SECRET_KEY as string, { apiVersion: '2024-06-20' })
-// app.use(bodyParser.json());
-//3rd party middleware
+
 app.use(logger())  //logs request and response to the console
 app.use(csrf()) //prevents CSRF attacks by checking request headers.
 app.use(trimTrailingSlash()) //removes trailing slashes from the request URL

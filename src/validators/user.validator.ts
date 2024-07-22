@@ -17,6 +17,6 @@ export const updateUserValidator = z.object({
     full_name: z.string().optional(),
     email: z.string().optional(),
     password: z.string().optional(),
-    phone_number: z.number().optional(),
+    phone_number: z.string().optional(),
     address: z.string().optional(),
 });

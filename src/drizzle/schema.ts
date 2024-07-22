@@ -14,6 +14,7 @@ export const userTable = pgTable( "userTable",{
         phone_number: varchar("phone_number"),
         address: varchar("address"),
         role: roleEnum('role').default('user'),
+        profile_picture: varchar("profile_picture"),
         created_at: timestamp("created_at").defaultNow(),
         updated_at: timestamp("updated_at").defaultNow(),
 });

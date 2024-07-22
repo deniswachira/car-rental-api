@@ -1,6 +1,6 @@
 import "dotenv/config";
 import { Context } from "hono";
-import { loginUserService, registerUserService } from "./auth.service";
+import { loginUserService, registerUserService, updateUserPictureService } from "./auth.service";
 import bcrypt from 'bcrypt';
 import { sign } from "hono/jwt";
 import { getUserByEmailService, getUserByIdService } from "../users/user.service";
@@ -61,3 +61,15 @@ export const loginUser = async (c: Context) => {
      return c.text(error?.message, 400);
    }
 };
+
+//upadte user profile picture
+export const updateUserPicture = async (c: Context) => {
+    const user_id = Number(c.req.param("user_id"));
+    try {
+        const user_picture = await c.req.json();
+        const updatedUser = await updateUserPictureService(user_id, user_picture);
+        return c.json({ msg: updatedUser }, 200);
+    } catch (error: any) {
+        return c.text(error?.message, 400);
+    }
+}
