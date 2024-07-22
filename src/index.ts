@@ -12,7 +12,6 @@ import  assert from 'assert'
 import { authRouter } from './auth/auth.router';
 import { userRouter } from './users/user.router';
 import { bookingRouter } from './booking/booking.router';
-import { ticketRouter } from './customerSupport/customerSupport.router';
 import { fleetMgntRouter } from './fleet/fleet.mgnt.router';
 import { branchRouter } from './location/location.router';
 import { paymentRouter } from './payment/payment.router';
@@ -20,11 +19,12 @@ import { vehicleRouter } from './vehicle/vehicle.router';
 import { vehicleSpecsRouter } from './vehicleSpec/vehicleSpecs.router';
 import dotenv from 'dotenv';
 import handleStripeWebhook from './payment/payment.controller';
+import { ticketRouter } from './tickets/ticket.router';
 dotenv.config();
+
 
 const app = new Hono();
 const {printMetrics, registerMetrics} = prometheus();
-
 app.use(logger())  //logs request and response to the console
 app.use(csrf()) //prevents CSRF attacks by checking request headers.
 app.use(trimTrailingSlash()) //removes trailing slashes from the request URL

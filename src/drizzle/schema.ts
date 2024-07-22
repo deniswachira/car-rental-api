@@ -80,22 +80,15 @@ export const paymentTable = pgTable( "paymentTable",{
     updated_at: timestamp("updated_at").defaultNow(),
 });
 
-//CustomerSupport Ticket Table 6
-export const customerSupportTable = pgTable( "customerSupportTable",{
+
+export const ticketStatusEnum = pgEnum("ticket_status",['open', 'closed']);
+//Ticket Table 7
+export const ticketTable = pgTable( "ticketTable",{
     ticket_id: serial("ticket_id").primaryKey(),
     user_id: integer("user_id").notNull().references(()=>userTable.user_id,{onDelete:"cascade"}),
-    ticket_subject: varchar("ticket_subject"),
-    ticket_description: varchar("ticket_description"),
-    ticket_status: statusEnum('ticket_status').default('pending'),
-    created_at: timestamp("created_at").defaultNow(),
-    updated_at: timestamp("updated_at").defaultNow(),
-});
-
-//Feedback Table 7
-export const feedbackTable = pgTable( "feedbackTable",{
-    feedback_id: serial("feedback_id").primaryKey(),
-    user_id: integer("user_id").notNull().references(()=>userTable.user_id,{onDelete:"cascade"}),
-    feedback_message: varchar("feedback_message"),
+    subject: varchar("subject"),
+    message: varchar("message"),
+    status: ticketStatusEnum('status').default('open'),
     created_at: timestamp("created_at").defaultNow(),
     updated_at: timestamp("updated_at").defaultNow(),
 });
@@ -129,10 +122,17 @@ export const fleetManagementTable = pgTable( "fleetManagementTable",{
 //relationship
 //relation between user(1) --> (n)booking and user(1) --> (n)feedback
 export const user_booking_reltion = relations(userTable,({many})=>({
-        feedbacks: many(feedbackTable),
+        tickets: many(ticketTable),
         bookings: many(bookingTable),
         payments: many(paymentTable),
-        support: many(customerSupportTable),
+}))
+
+//ticket(1) --> (1)user
+export const ticket_user_relation = relations(ticketTable,({one})=>({
+        user: one(userTable, {
+                fields:[ticketTable.user_id],
+                references:[userTable.user_id]
+        })
 }))
 
 //relation booking(1) --> (1)user and booking(1) --> (1)vehicle and booking(1) --> (1)location
@@ -207,11 +207,8 @@ export type TBookingSelect = typeof bookingTable.$inferSelect;
 export type TPaymentInsert = typeof paymentTable.$inferInsert;
 export type TPaymentSelect = typeof paymentTable.$inferSelect;
 
-export type TCustomerSupportInsert = typeof customerSupportTable.$inferInsert;
-export type TCustomerSupportSelect = typeof customerSupportTable.$inferSelect;
-
-export type TFeedbackInsert = typeof feedbackTable.$inferInsert;
-export type TFeedbackSelect = typeof feedbackTable.$inferSelect;
+export type TTicketInsert = typeof ticketTable.$inferInsert;
+export type TTicketSelect = typeof ticketTable.$inferSelect;
 
 export type TLocationBranchInsert = typeof locationBranchTable.$inferInsert;
 export type TLocationBranchSelect = typeof locationBranchTable.$inferSelect;
