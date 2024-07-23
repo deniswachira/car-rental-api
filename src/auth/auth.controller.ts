@@ -1,9 +1,9 @@
 import "dotenv/config";
 import { Context } from "hono";
-import { loginUserService, registerUserService, updateUserPictureService } from "./auth.service";
+import {  registerUserService, updateUserPictureService } from "./auth.service";
 import bcrypt from 'bcrypt';
 import { sign } from "hono/jwt";
-import { getUserByEmailService, getUserByIdService } from "../users/user.service";
+import { getUserByEmailService} from "../users/user.service";
 
 //register
 export const createUser = async (c: Context) => {

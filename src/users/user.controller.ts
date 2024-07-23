@@ -1,7 +1,5 @@
 import "dotenv/config";
 import { Context } from "hono";
-import bcrypt from 'bcrypt';
-import { sign } from "hono/jwt";
 import { deleteUserService, getUserByIdService, getUsersService, updateUserService } from "./user.service";
 
 //list all users

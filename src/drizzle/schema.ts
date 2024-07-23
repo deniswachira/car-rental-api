@@ -1,4 +1,5 @@
 
+
 import { relations } from "drizzle-orm";
 import { pgTable, pgEnum , serial,varchar, timestamp,integer, decimal, text } from "drizzle-orm/pg-core";
 
@@ -119,12 +120,30 @@ export const fleetManagementTable = pgTable( "fleetManagementTable",{
     updated_at: timestamp("updated_at").defaultNow(),
 });
 
+//logtable
+export const logTable = pgTable( "logTable",{
+    log_id: serial("log_id").primaryKey(),
+    user_id: integer("user_id").notNull().references(()=>userTable.user_id,{onDelete:"cascade"}),
+    action: varchar("action"),
+    created_at: timestamp("created_at").defaultNow(),
+    updated_at: timestamp("updated_at").defaultNow(),
+});
+
 //relationship
 //relation between user(1) --> (n)booking and user(1) --> (n)feedback
 export const user_booking_reltion = relations(userTable,({many})=>({
         tickets: many(ticketTable),
         bookings: many(bookingTable),
         payments: many(paymentTable),
+        logs: many(logTable),
+}))
+
+//log(1) --> (1)user
+export const log_user_relation = relations(logTable,({one})=>({
+        user: one(userTable, {
+                fields:[logTable.user_id],
+                references:[userTable.user_id]
+        })
 }))
 
 //ticket(1) --> (1)user
@@ -215,4 +234,7 @@ export type TLocationBranchSelect = typeof locationBranchTable.$inferSelect;
 
 export type TFleetManagementInsert = typeof fleetManagementTable.$inferInsert;
 export type TFleetManagementSelect = typeof fleetManagementTable.$inferSelect;
+
+export type TLogInsert = typeof logTable.$inferInsert;
+export type TLogSelect = typeof logTable.$inferSelect;
 

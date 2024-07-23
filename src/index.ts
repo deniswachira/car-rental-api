@@ -20,6 +20,7 @@ import { vehicleSpecsRouter } from './vehicleSpec/vehicleSpecs.router';
 import dotenv from 'dotenv';
 import handleStripeWebhook from './payment/payment.controller';
 import { ticketRouter } from './tickets/ticket.router';
+import { logRouter } from './utils/utils.router';
 dotenv.config();
 
 
@@ -60,6 +61,7 @@ app.route("/", branchRouter )
 app.route("/", paymentRouter )
 app.route("/", vehicleRouter )
 app.route("/", vehicleSpecsRouter )
+app.route("/", logRouter )
   
 
 

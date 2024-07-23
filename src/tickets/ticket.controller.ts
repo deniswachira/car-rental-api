@@ -87,20 +87,3 @@ export const deleteTicket = async (c: Context) => {
         return c.json({ msg: 'Failed to delete ticket' }, 500);
     }
 }
-
-// export const getVehicleByIdWithSpecs = async(c:Context) => {
-//       const vehicle_id = parseInt(c.req.param('vehicle_id'));
-
-//     if (isNaN(vehicle_id)) {
-//         return c.json({ error: 'Invalid vehicle ID' }, 400);
-//     }
-//     try {
-//         const vehicle = await vehicleByIdWithSpecsService(vehicle_id);
-//         if (!vehicle) {
-//             return c.json({ msg: 'Vehicle not found' }, 404);
-//         }
-//         return c.json(vehicle, 200);
-//     } catch (error) {
-//         return c.json({ msg: 'Failed to fetch vehicle' }, 500);
-//     }
-// }

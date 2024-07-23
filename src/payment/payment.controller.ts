@@ -1,6 +1,6 @@
-import { Context } from "hono";
+import { Context} from "hono";
 import dotenv from 'dotenv';
-import { deletePaymentService, getPaymentByBookingIdService, getPaymentByIdService, getPaymentsByUserIdService, getPaymentService, insertPaymentService, listAllPaymentsService, updatePaymentBySessionIdService, updatePaymentService } from "./payment.service";
+import { deletePaymentService, getPaymentByBookingIdService, getPaymentByIdService, getPaymentsByUserIdService, getPaymentService, insertPaymentService, listAllPaymentsService, printAllPaymentsService, updatePaymentBySessionIdService, updatePaymentService } from "./payment.service";
 import Stripe from 'stripe';
 import { FRONTEND_URL } from "../proxxy/proxxy";
 dotenv.config();
@@ -199,3 +199,6 @@ export const handleStripeWebhook = async (c: Context) => {
 };
 
 export default handleStripeWebhook;
+
+
+
