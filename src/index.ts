@@ -1,7 +1,7 @@
 import { serve } from '@hono/node-server'
-import { Context, Hono, HonoRequest } from 'hono'
+import {  Hono, } from 'hono'
 import { prometheus } from '@hono/prometheus'
-import { limiter } from './middleWare/rateLimiter';
+// import { limiter } from './middleWare/rateLimiter';
 import { readFile } from 'fs/promises';
 import "dotenv/config"
 import { logger } from 'hono/logger'
@@ -31,7 +31,7 @@ app.use(csrf()) //prevents CSRF attacks by checking request headers.
 app.use(trimTrailingSlash()) //removes trailing slashes from the request URL
 app.use('*', registerMetrics) //prometheus to monitor metrics
 app.use(cors()) 
-app.use(limiter); //rate limiter
+// app.use(limiter); //rate limiter
 
 //webhooks
 app.post('/webhook', handleStripeWebhook)
